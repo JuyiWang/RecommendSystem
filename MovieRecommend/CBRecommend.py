@@ -31,7 +31,7 @@ class PrepareFeature():
         for index in users.values:
             (user, item, score) = index[:3]
             users_dict[user][item] = int(score)
-        user_matirx = []
+        user_matrix = []
         for user in users_dict.keys():
             score_list = list(users_dict[user].values())
             socre_avg = np.mean(np.array(score_list))
@@ -47,15 +47,27 @@ class PrepareFeature():
             for idx in range(19):
                 if genre_list[idx]:
                     score_list[idx] = score_list[idx]/genre_list[idx]
-            user_matirx.append(score_list)
-        self.user_matrix = np.array(user_matirx)
+            user_matrix.append(score_list)
+        self.user_feat = np.array(user_matrix)
+    
+    def prepare_feat(self):
+        self.prepare_item_feat()
+        self.prepare_user_feat()
+        print("Feature build successfully~")
         
 class CBRecoomend():
-    def __init__(self):
-        pass 
+    def __init__(self,K, pre):
+        pre.prepare_feat()
+        self.K = K 
+        self.user_feat = pre.user_feat
+        self.item_feat = pre.item_feat
+
+    def get_none_score(self):
+        
 
 
 if __name__ == '__main__':
     pf = PrepareFeature()
     pf.prepare_item_feat()
     pf.prepare_user_feat()
+    print(pf.user_feat[:2,:])
