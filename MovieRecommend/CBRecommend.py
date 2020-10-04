@@ -17,7 +17,7 @@ class PrepareFeature():
         for item in items_ids:
             feat = items[items['MovieID'] == item][['Unknown','Action','Adventure', 'Animation', 'Children', 'Comedy', 'Crime', 'Documentary', 'Drama', 'Fantasy',
             'Film-Noir', 'Horror', 'Musical', 'Mystery', 'Romance', 'Sci-Fi', 'Thriller', 'War', 'Western']].values[0]
-            items_feat.extend(feat)
+            items_feat.append(feat)
             self.items_dict.setdefault(item,[]).extend(feat)
         self.items_feat = np.array(items_feat)        
         
@@ -48,7 +48,8 @@ class PrepareFeature():
                 if genre_list[idx]:
                     score_list[idx] = score_list[idx]/genre_list[idx]
             user_matrix.append(score_list)
-        self.user_feat = np.array(user_matrix)
+        self.users_dict = users_dict
+        self.users_feat = np.array(user_matrix)
     
     def prepare_feat(self):
         self.prepare_item_feat()
@@ -59,15 +60,26 @@ class CBRecoomend():
     def __init__(self,K, pre):
         pre.prepare_feat()
         self.K = K 
-        self.user_feat = pre.user_feat
-        self.item_feat = pre.item_feat
+        self.user_feat = pre.users_feat
+        self.user_dict = pre.users_dict
+        self.item_feat = pre.items_feat
 
-    def get_none_score(self):
-        
+    def get_none_score(self,user):
+        check_list = set(self.user_dict[user].keys())
+        user_para = np.array(self.user_feat[user])
+        item_para = self.item_feat
+        score_list = np.matmul(item_para, user_para)
+        score = [(idx+1,score) for idx,score in enumerate(score_list) if idx+1 not in check_list]
+        score = sorted(score, key = lambda k:k[1],reverse = True)
+        return score
+    
+    def get_recommend_movie(self,user):
+        socre_list = self.get_none_score(user)
+        return socre_list[:self.K]
 
 
 if __name__ == '__main__':
     pf = PrepareFeature()
-    pf.prepare_item_feat()
-    pf.prepare_user_feat()
-    print(pf.user_feat[:2,:])
+    pf.prepare_feat()
+    cb = CBRecoomend(10,pf)
+    print(cb.get_recommend_movie(888))
