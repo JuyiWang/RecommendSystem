@@ -57,12 +57,12 @@ class PrepareFeature():
         print("Feature build successfully~")
         
 class CBRecoomend():
-    def __init__(self,K, pre):
-        pre.prepare_feat()
+    def __init__(self,K, pf):
+        pf.prepare_feat()
         self.K = K 
-        self.user_feat = pre.users_feat
-        self.user_dict = pre.users_dict
-        self.item_feat = pre.items_feat
+        self.user_feat = pf.users_feat
+        self.user_dict = pf.users_dict
+        self.item_feat = pf.items_feat
 
     def get_none_score(self,user):
         check_list = set(self.user_dict[user].keys())
